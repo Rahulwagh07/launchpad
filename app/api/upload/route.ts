@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       name,
       symbol,
       //@ts-ignore
-      uri: uploadResult.secure_url,  
+      image: uploadResult.secure_url,  
       description,
     };
 
