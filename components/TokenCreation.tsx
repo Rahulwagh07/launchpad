@@ -79,24 +79,24 @@ export function TokenLaunchpad() {
       toast(customToast("Please connect your wallet.", <BiWallet size={24} className="text-sky-500"/>));
       return;
     }
-
+  
     if (!imageFile) {
       toast(customToast("Please select image.", <FaRegImage size={24} className="text-pink-500"/>));
       return;
     }
     setIsLoading(true);
-    setTxState("Confirming Transactions...")
-
+    setTxState("Sending Transaction...");
+  
     try {
       const formData = new FormData();
       formData.append('file', imageFile);
       formData.append('name', data.name);
       formData.append('symbol', data.symbol);
       formData.append('description', data.description);
-      
+  
       const metadataUrl = await getMetadataUrl(formData);
       const mintKeypair = Keypair.generate();
-
+  
       const metadata = {
         mint: mintKeypair.publicKey,
         name: data.name,
@@ -104,19 +104,22 @@ export function TokenLaunchpad() {
         uri: metadataUrl,
         additionalMetadata: [],
       };
-
+  
       const mintLen = getMintLen([ExtensionType.MetadataPointer]);
       const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
-
+      
       const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
       const walletBalance = await connection.getBalance(wallet.publicKey);
-
+  
       if (walletBalance < lamports) {
         toast(customToast("Not enough Balance in your wallet!", <TbCurrencySolana size={24} className="text-red-500"/>));
         return;
       }
-
-      const transaction1 = new Transaction().add(
+  
+      const transaction = new Transaction();
+  
+      // 1. create mint account and init
+      transaction.add(
         SystemProgram.createAccount({
           fromPubkey: wallet.publicKey,
           newAccountPubkey: mintKeypair.publicKey,
@@ -137,18 +140,8 @@ export function TokenLaunchpad() {
           updateAuthority: wallet.publicKey,
         })
       );
-
-      transaction1.feePayer = wallet.publicKey;
-      const { blockhash } = await connection.getLatestBlockhash();
-      transaction1.recentBlockhash = blockhash;
-      transaction1.partialSign(mintKeypair);
-
-      //transaction 1
-      await wallet.sendTransaction(transaction1, connection);
-
-      setTxState("Creating Associated Token account..")
-      const initialSupply = data.supply;
-
+  
+      // 2. create associated token account
       const associatedTokenAccount = await getAssociatedTokenAddress(
         mintKeypair.publicKey,
         wallet.publicKey,
@@ -167,18 +160,11 @@ export function TokenLaunchpad() {
           TOKEN_2022_PROGRAM_ID,
           ASSOCIATED_TOKEN_PROGRAM_ID
         );
-        
-        const tokenAccountCreationTransaction = new Transaction().add(tokenAccountCreationInstruction);
-        const { blockhash } = await connection.getLatestBlockhash();
-        tokenAccountCreationTransaction.recentBlockhash = blockhash;
-        tokenAccountCreationTransaction.feePayer = wallet.publicKey;
-  
-        //transaction 2
-        await wallet.sendTransaction(tokenAccountCreationTransaction, connection);
-      } else {
-        console.log("Associated token account already exists");
+        transaction.add(tokenAccountCreationInstruction);
       }
   
+      // 3. mint initial supply
+      const initialSupply = data.supply;
       const mintToInstruction = createMintToInstruction(
         mintKeypair.publicKey,
         associatedTokenAccount,
@@ -187,22 +173,22 @@ export function TokenLaunchpad() {
         [],
         TOKEN_2022_PROGRAM_ID
       );
+      transaction.add(mintToInstruction);
   
-      const mintSupplyTransaction = new Transaction().add(mintToInstruction);
-      const { blockhash: newBlockhash } = await connection.getLatestBlockhash();
-      mintSupplyTransaction.recentBlockhash = newBlockhash;
-      mintSupplyTransaction.feePayer = wallet.publicKey;
+      transaction.feePayer = wallet.publicKey;
+      const { blockhash } = await connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.partialSign(mintKeypair);
+  
+      setTxState("Confirming Transaction...");
+      await wallet.sendTransaction(transaction, connection);
 
-      setTxState("Creating Initial supply..")
-      //transaction 3
-      await wallet.sendTransaction(mintSupplyTransaction, connection);
-  
       toast(customToast("Token Created", <GoCheckCircleFill size={24} className="text-green-500"/>));
       setShowToken(true);
       setTokenAddress(mintKeypair.publicKey.toBase58());
       reset();
       setImagePreview("");
-      
+  
     } catch (e) {
       console.error('Error creating token:', e);
       toast(customToast("Failed to create token.", <BiSolidError size={24} className="text-red-500"/>));
@@ -211,6 +197,7 @@ export function TokenLaunchpad() {
       setTxState("Create Token")
     }
   };
+  
 
   return (
     <form
