@@ -30,6 +30,7 @@ import { TbCurrencySolana } from "react-icons/tb";
 import { BiSolidError } from "react-icons/bi";
 import { GoCheckCircleFill } from "react-icons/go";
 import { MdArrowOutward } from "react-icons/md";
+import Image from "next/image";
 
 type FormValues = {
   name: string;
@@ -142,7 +143,8 @@ export function TokenLaunchpad() {
       transaction1.recentBlockhash = blockhash;
       transaction1.partialSign(mintKeypair);
 
-      const tx1 = await wallet.sendTransaction(transaction1, connection);
+      //transaction 1
+      await wallet.sendTransaction(transaction1, connection);
 
       setTxState("Creating Associated Token account..")
       const initialSupply = data.supply;
@@ -171,6 +173,7 @@ export function TokenLaunchpad() {
         tokenAccountCreationTransaction.recentBlockhash = blockhash;
         tokenAccountCreationTransaction.feePayer = wallet.publicKey;
   
+        //transaction 2
         await wallet.sendTransaction(tokenAccountCreationTransaction, connection);
       } else {
         console.log("Associated token account already exists");
@@ -191,7 +194,8 @@ export function TokenLaunchpad() {
       mintSupplyTransaction.feePayer = wallet.publicKey;
 
       setTxState("Creating Initial supply..")
-      const tx3 = await wallet.sendTransaction(mintSupplyTransaction, connection);
+      //transaction 3
+      await wallet.sendTransaction(mintSupplyTransaction, connection);
   
       toast(customToast("Token Created", <GoCheckCircleFill size={24} className="text-green-500"/>));
       setShowToken(true);
@@ -288,17 +292,19 @@ export function TokenLaunchpad() {
               className="hidden"
             />
     
-            <div className="flex justify-center bg-blue-950 mt-1 rounded-md border border-gray-600">
+            <div className="flex justify-center h-28 bg-blue-950 mt-1 rounded-md border border-gray-600">
               {imagePreview ? (
-                <img
+                <Image
                   src={imagePreview}
+                  width={160}
+                  height={160}
                   alt="Preview"
-                  className="w-40 h-28 object-cover p-1 cursor-pointer rounded-md"
+                  className="object-cover p-1 cursor-pointer rounded-md"
                   onClick={() => document.getElementById("image")?.click()}
                 />
               ) : (
                 <div
-                  className="flex flex-col items-center justify-center cursor-pointer bg-blue-950 w-32 h-28"
+                  className="flex flex-col items-center justify-center cursor-pointer w-32 h-28"
                   onClick={() => document.getElementById("image")?.click()}
                 >
                   <LuUpload className="text-2xl" />

@@ -46,12 +46,11 @@ export async function POST(request: Request) {
         });
 
       pump();
-    });
+    }) as { secure_url: string };
 
     const metadataJson = {
       name,
       symbol,
-      //@ts-ignore
       image: uploadResult.secure_url,  
       description,
     };
@@ -73,11 +72,10 @@ export async function POST(request: Request) {
       );
 
       uploadStream.end(JSON.stringify(metadataJson));
-    });
+    }) as { secure_url: string };;
 
     return NextResponse.json({
       message: 'Metadata uploaded successfully',
-       //@ts-ignore
       metadataUrl: metadataUploadResult.secure_url,
     });
   } catch (error) {
