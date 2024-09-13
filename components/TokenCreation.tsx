@@ -52,7 +52,7 @@ type FormValues = {
 
  
 export function TokenLaunchpad() {
-  const { register, handleSubmit, formState: { errors }, reset, control, watch} = useForm<FormValues>();
+  const { register, handleSubmit, formState: { errors }, reset, control, watch, setValue} = useForm<FormValues>();
   const { connection } = useConnection();
   const wallet = useWallet();
   const [showToken, setShowToken] = useState<boolean>(false);
@@ -129,9 +129,17 @@ export function TokenLaunchpad() {
         toast(customToast("Not enough Balance in your wallet!", <TbCurrencySolana size={24} className="text-red-500"/>));
         return;
       }
-  
-      const freezeAuthority = data.hasFreezeAuthority ? wallet.publicKey : null;
-      const mintAuthority = data.mintAuthority ? data.mintAuthority : wallet.publicKey;
+     
+      const freezeAuthority = data.hasFreezeAuthority ?  (
+          data.freezeAuthority === undefined || data.freezeAuthority.toString() === ""? 
+          wallet.publicKey :  new PublicKey(data.freezeAuthority)
+        ) :  null;
+
+      const upgradeAuthority = data.hasUpgradeAuthority ?  (
+          data.upgradeAuthority === undefined || data.upgradeAuthority.toString() === ""? 
+          wallet.publicKey :  new PublicKey(data.upgradeAuthority)
+        ) :  wallet.publicKey;
+     
       const transaction = new Transaction();
   
       // 1. create mint account and init
@@ -143,8 +151,8 @@ export function TokenLaunchpad() {
           lamports,
           programId: TOKEN_2022_PROGRAM_ID,
         }),
-        createInitializeMetadataPointerInstruction(mintKeypair.publicKey, mintAuthority, mintKeypair.publicKey, TOKEN_2022_PROGRAM_ID),
-        createInitializeMintInstruction(mintKeypair.publicKey, data.decimals, mintAuthority, freezeAuthority, TOKEN_2022_PROGRAM_ID),
+        createInitializeMetadataPointerInstruction(mintKeypair.publicKey, wallet.publicKey, mintKeypair.publicKey, TOKEN_2022_PROGRAM_ID),
+        createInitializeMintInstruction(mintKeypair.publicKey, data.decimals, wallet.publicKey, freezeAuthority, TOKEN_2022_PROGRAM_ID),
         createInitializeInstruction({
           programId: TOKEN_2022_PROGRAM_ID,
           mint: mintKeypair.publicKey,
@@ -152,8 +160,8 @@ export function TokenLaunchpad() {
           name: metadata.name,
           symbol: metadata.symbol,
           uri: metadata.uri,
-          mintAuthority: mintAuthority,
-          updateAuthority: wallet.publicKey,
+          mintAuthority: wallet.publicKey,
+          updateAuthority: upgradeAuthority,
         })
       );
   
@@ -192,18 +200,22 @@ export function TokenLaunchpad() {
       transaction.add(mintToInstruction);
 
       // 4. Set mint authority 
-      if (!data.hasMintAuthority) {
-        transaction.add(
-          createSetAuthorityInstruction(
-            mintKeypair.publicKey,
-            wallet.publicKey,
-            AuthorityType.MintTokens,
-            null,
-            [],
-            TOKEN_2022_PROGRAM_ID
-          )
-        );
-      }
+      const newMintAuthority = data.hasMintAuthority ?  (
+        data.mintAuthority === undefined || data.mintAuthority.toString() === "" ? 
+        wallet.publicKey  : new PublicKey(data.mintAuthority)
+      ) :  null;
+    
+      transaction.add(
+        createSetAuthorityInstruction(
+          mintKeypair.publicKey,
+          wallet.publicKey,
+          AuthorityType.MintTokens,
+          newMintAuthority,
+          [],
+          TOKEN_2022_PROGRAM_ID
+        )
+      );
+      
 
        // 5. Set update authority  
        if (!data.hasUpgradeAuthority) {
@@ -247,9 +259,9 @@ export function TokenLaunchpad() {
       className="p-3 sm:p-8 w-[60rem] mx-auto bg-zinc-900 rounded-xl shadow-md text-white"
     >
       <div className="space-y-5">
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Name</label>
+            <label className="block text-sm font-medium">Name <span className="text-red-700">*</span></label>
             <Input
               {...register("name", { required: "Name is required" })}
               className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
@@ -260,7 +272,7 @@ export function TokenLaunchpad() {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium">Symbol</label>
+            <label className="block text-sm font-medium">Symbol <span className="text-red-700">*</span></label>
             <Input
               {...register("symbol", { required: "Symbol is required" })}
               className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
@@ -272,9 +284,9 @@ export function TokenLaunchpad() {
           </div>
         </div>
     
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Decimals</label>
+            <label className="block text-sm font-medium">Decimals <span className="text-red-700">*</span></label>
             <Input
               type="number"
               {...register("decimals", { required: "Decimals are required",  
@@ -295,7 +307,7 @@ export function TokenLaunchpad() {
           </div>
     
           <div>
-            <label className="block text-sm font-medium">Supply</label>
+            <label className="block text-sm font-medium">Supply <span className="text-red-700">*</span></label>
             <Input
               type="number"
               {...register("supply", { required: "Supply is required", min: 1 })}
@@ -308,9 +320,9 @@ export function TokenLaunchpad() {
           </div>
         </div>
     
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Image</label>
+            <label className="block text-sm font-medium">Image <span className="text-red-700">*</span></label>
             <input
               id="image"
               type="file"
@@ -347,7 +359,7 @@ export function TokenLaunchpad() {
           </div>
     
           <div>
-            <label className="block text-sm font-medium">Description</label>
+            <label className="block text-sm font-medium">Description <span className="text-red-700">*</span></label>
             <textarea
               {...register("description", { required: "Description is required" })}
               className="mt-1 pl-3 text-sm pt-2 block w-full h-28 rounded-md bg-blue-950 border border-gray-600"
@@ -361,7 +373,7 @@ export function TokenLaunchpad() {
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-4 pt-2">
+        <div className="grid md:grid-cols-2 gap-4 pt-2">
         <div className="flex flex-col">
           <div className="flex items-center">
             <Controller
@@ -379,16 +391,21 @@ export function TokenLaunchpad() {
             />
             <label
               className={`${
-                hasMintAuthority ? "block ml-2 text-sm font-medium text-red-500" : "hidden"
+                hasMintAuthority ? "block ml-2 text-sm font-medium text-green-600" : "hidden"
               }`}
             >
-              default is wallet pubkey
+              default Mint Authority is wallet pubkey
             </label>
           </div>
           <Input
             type="string"
             {...register("mintAuthority", {
-              validate: (value) => isValidSolanaAddress(value.toString()) || "Invalid Solana address",
+              validate: (value) => {
+                if (value && value.toString().trim().length > 0) {
+                  return isValidSolanaAddress(value.toString()) || "Invalid Solana address";
+                }
+                return true; 
+              },
             })}
             className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
             placeholder="Enter mint authority"
@@ -416,16 +433,21 @@ export function TokenLaunchpad() {
             />
             <label
               className={`${
-                hasFreezeAuthority ? "block ml-2 text-sm font-medium text-red-500" : "hidden"
+                hasFreezeAuthority ? "block ml-2 text-sm font-medium text-green-600" : "hidden"
               }`}
             >
-              default is wallet pubkey
+              default Freeze Authority is wallet pubkey
             </label>
           </div>
           <Input
             type="string"
             {...register("freezeAuthority", {
-              validate: (value) => isValidSolanaAddress(value.toString()) || "Invalid Solana address",
+              validate: (value) => {
+                if (value && value.toString().trim()) {
+                  return isValidSolanaAddress(value.toString()) || "Invalid Solana address";
+                }
+                return true; 
+              },
             })}
             className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
             placeholder="Enter freeze authority"
@@ -453,16 +475,21 @@ export function TokenLaunchpad() {
             />
             <label
               className={`${
-                hasUpgradeAuthority ? "block ml-2 text-sm font-medium text-red-500" : "hidden"
+                hasUpgradeAuthority ? "block ml-2 text-sm font-medium text-green-600" : "hidden"
               }`}
             >
-              default is wallet pubkey
+              default Upgrade Authority is wallet pubkey
             </label>
           </div>
           <Input
             type="string"
             {...register("upgradeAuthority", {
-              validate: (value) => isValidSolanaAddress(value.toString()) || "Invalid Solana address",
+              validate: (value) => {
+                if (value && value.toString().trim()) {
+                  return isValidSolanaAddress(value.toString()) || "Invalid Solana address";
+                }
+                return true; 
+              },
             })}
             className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
             placeholder="Enter upgrade authority"
