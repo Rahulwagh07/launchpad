@@ -52,7 +52,7 @@ type FormValues = {
 
  
 export function TokenLaunchpad() {
-  const { register, handleSubmit, formState: { errors }, reset, control, watch, setValue} = useForm<FormValues>();
+  const { register, handleSubmit, formState: { errors }, reset, control, watch} = useForm<FormValues>();
   const { connection } = useConnection();
   const wallet = useWallet();
   const [showToken, setShowToken] = useState<boolean>(false);
