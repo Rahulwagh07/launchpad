@@ -87,3 +87,49 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+
+
+.scrollable-container {
+  overflow-y: auto;
+  height: 200px;   
+}
+
+ 
+.scrollable-container::-webkit-scrollbar {
+  width: 2px;   
+  height: 2px;  
+}
+
+ 
+.scrollable-container::-webkit-scrollbar-track {
+  background: transparent;  
+}
+ 
+.scrollable-container::-webkit-scrollbar-thumb {
+  background: #888;  
+  border-radius: 1px;  
+}
+ 
+.scrollable-container::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+/* Firefox */
+.scrollable-container {
+  scrollbar-width: thin;  
+  scrollbar-color: #888 transparent;  
+}
