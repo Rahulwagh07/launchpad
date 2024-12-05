@@ -256,7 +256,7 @@ export function TokenLaunchpad() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="p-3 sm:p-8 w-[60rem] mx-auto bg-zinc-900 rounded-xl shadow-md text-white"
+      className="p-3 sm:p-8 w-[60rem] mx-auto bg-zinc-900 rounded-xl shadow-md text-white border-zinc-700"
     >
       <div className="space-y-5">
         <div className="grid md:grid-cols-2 gap-4">

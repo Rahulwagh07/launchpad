@@ -1,9 +1,10 @@
 "use client"
 import React from 'react'
 import Link from 'next/link'
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+
 import { Card } from './ui/card'
 import { MdToken } from "react-icons/md";
+import { WalletMultiButton } from './common/WalletMultiButton';
 
 function Appbar() {
   return (
@@ -14,7 +15,18 @@ function Appbar() {
        <MdToken  size={32} className='text-sky-500'/>     
        <span className='text-lg'> TokenNx</span>
       </Link>
+      <div className='flex items-center justify-center gap-8'>
+      <Link href={"/swap"}>
+        Swap
+      </Link>
+      <Link href={"/liquidity-pools"}>
+        Liquidity
+      </Link>
+      <Link href={"/create-token"}>
+        Create Token
+      </Link>
       <WalletMultiButton/>
+      </div>
    </Card>
    </div>
   )
