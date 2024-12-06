@@ -25,12 +25,14 @@ export interface PoolInfo {
     mint: string
     symbol: string
     balance: number
+    name: string
     image: string
   }
   tokenB: {
     mint: string
     symbol: string
     balance: number
+    name: string
     image: string
   }
   poolInfo: CpmmRpcData

@@ -1,4 +1,4 @@
-import { TokenLaunchpad } from '@/components/TokenCreation'
+import { TokenLaunchpad } from '@/components/token-creation'
 import React from 'react'
 
 function page() {

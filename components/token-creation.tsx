@@ -24,16 +24,16 @@ import { useState } from "react";
 import axios from "axios";
 import { Input } from "./ui/input";
 import { LuUpload } from "react-icons/lu";
-import Loader from "./common/Loader";
+import Loader from "./common/loader";
 import { BiWallet } from "react-icons/bi";
 import { FaRegImage } from "react-icons/fa6";
-import { customToast } from "./common/CustomToast";
+import { customToast } from "./common/custom-toast";
 import { TbCurrencySolana } from "react-icons/tb";
 import { BiSolidError } from "react-icons/bi";
 import { GoCheckCircleFill } from "react-icons/go";
 import { MdArrowOutward } from "react-icons/md";
 import Image from "next/image";
-import { Switch } from "./Switch";
+import { Switch } from "./switch";
 
 type FormValues = {
   name: string;

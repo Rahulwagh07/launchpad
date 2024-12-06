@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -18,11 +19,14 @@ import toast from "react-hot-toast";
 import { TokenSelectModal } from "@/components/token-select-modal";
 import Image from "next/image";
 import { SOL_MINT } from "@/lib/constant";
-import swapSvg from "@/public/images/swap.svg";
+import SwapIcon from "@/components/icons/swap";
 
-export default function TokenSwap() {
+function TokenSwap() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { connection } = useConnection();
   const wallet = useWallet();
+  
   const [userTokens, setUserTokens] = useState<TokenTypes[]>([]);
   const [selectedTokenA, setSelectedTokenA] = useState<TokenTypes | null>(null);
   const [selectedTokenB, setSelectedTokenB] = useState<TokenTypes | null>(null);
@@ -34,6 +38,38 @@ export default function TokenSwap() {
   const [isSelectingTokenA, setIsSelectingTokenA] = useState(false);
   const [isSelectingTokenB, setIsSelectingTokenB] = useState(false);
   const [error, setError] = useState<string | null>(null);
+ 
+  useEffect(() => {
+    const fetchAndSetTokens = async () => {
+      if (!wallet.publicKey) return;
+  
+      try {
+        const res = await fetchUserTokens(wallet, connection);
+        setUserTokens(res);
+  
+        const inputMint =
+          searchParams.get("inputMint") === "sol" ? SOL_MINT : searchParams.get("inputMint");
+        const outputMint =
+          searchParams.get("outputMint") === "sol" ? SOL_MINT : searchParams.get("outputMint");
+  
+        const tokenA = inputMint
+          ? res.find((token) => token.mint === inputMint)
+          : res.find((token) => token.mint === SOL_MINT);
+        const tokenB = outputMint
+          ? res.find((token) => token.mint === outputMint)
+          : null;
+  
+        setSelectedTokenA(tokenA || null);
+        setSelectedTokenB(tokenB || null);
+      } catch (error) {
+        console.error("Error fetching tokens:", error);
+      }
+    };
+  
+    fetchAndSetTokens();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet.publicKey, connection, searchParams]);
+  
 
   useEffect(() => {
     const fetchTokens = async () => {
@@ -47,7 +83,18 @@ export default function TokenSwap() {
       }
     };
     fetchTokens();
+   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey, connection]);
+
+  useEffect(() => {
+    if (selectedTokenA && selectedTokenB) {
+      const newParams = new URLSearchParams();
+      newParams.set('inputMint', selectedTokenA.mint === SOL_MINT ? 'sol' : selectedTokenA.mint);
+      newParams.set('outputMint', selectedTokenB.mint === SOL_MINT ? 'sol' : selectedTokenB.mint);
+      router.replace(`/swap?${newParams.toString()}`, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTokenA, selectedTokenB, router]);
 
   const calculateAmountB = async () => {
     if (selectedTokenA && selectedTokenB && amountA) {
@@ -88,6 +135,7 @@ export default function TokenSwap() {
     return () => {
       clearTimeout(handler);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTokenA, selectedTokenB, amountA]);
 
   const handleSwap = async (e: React.FormEvent) => {
@@ -124,18 +172,21 @@ export default function TokenSwap() {
       setLoading(false);
     }
   };
+
   const handleSwapInputs = () => {
     setSelectedTokenA(selectedTokenB);
     setSelectedTokenB(selectedTokenA);
     setAmountA("");
     setAmountB(0);
   };
+
   const handleAmountAChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === "" || (Number(value) >= 0 && !isNaN(Number(value)))) {
       setAmountA(value);
     }
   };
+
   const handleMaxClick = () => {
     if (selectedTokenA) {
       setAmountA(selectedTokenA.balance.toString());
@@ -170,6 +221,16 @@ export default function TokenSwap() {
       <ChevronDown className="h-4 w-4" />
     </Button>
   );
+
+  const setSelectedTokenAWithUpdate = (token: TokenTypes | null) => {
+    setSelectedTokenA(token);
+    setAmountB(0);    
+  };
+  
+  const setSelectedTokenBWithUpdate = (token: TokenTypes | null) => {
+    setSelectedTokenB(token);
+    setAmountB(0);  
+  };
 
   return (
     <Card className="w-full max-w-md p-6 mx-auto mt-10 bg-zinc-900 border-zinc-700 text-white">
@@ -206,19 +267,13 @@ export default function TokenSwap() {
             </div>
           </div>
 
-          <div className=" text-center">
+          <div className="flex items-center justify-center">
             <Button
               onClick={handleSwapInputs}
               type="button"
-              className="p-2 bg-zinc-800 border border-zinc-700 rounded-full text-white hover:bg-zinc-700"
+              className="p-2.5 bg-zinc-800 border border-zinc-700 rounded-full text-white hover:bg-zinc-700"
             >
-              <Image
-                src={swapSvg}
-                alt="s"
-                width={20}
-                height={20}
-                className="rotate-90"
-              />
+            <SwapIcon className="rotate-90"/>
             </Button>
           </div>
 
@@ -231,7 +286,7 @@ export default function TokenSwap() {
                 <Input
                   id="buyAmount"
                   type="number"
-                  value={amountB !== null ? amountB.toFixed(6) : ""}
+                  value={amountB !== null ? (amountB === 0 ? 0 :  amountB.toFixed(6)) : ""}
                   readOnly
                   placeholder="0"
                   className="bg-transparent border-none text-white text-lg w-full focus:border-none focus:outline-none"
@@ -276,7 +331,7 @@ export default function TokenSwap() {
           isOpen={isSelectingTokenA}
           onClose={() => setIsSelectingTokenA(false)}
           tokens={userTokens}
-          onSelect={setSelectedTokenA}
+          onSelect={setSelectedTokenAWithUpdate}
           selectedToken2={selectedTokenB}
         />
 
@@ -284,10 +339,19 @@ export default function TokenSwap() {
           isOpen={isSelectingTokenB}
           onClose={() => setIsSelectingTokenB(false)}
           tokens={userTokens}
-          onSelect={setSelectedTokenB}
+          onSelect={setSelectedTokenBWithUpdate}
           selectedToken2={selectedTokenA}
         />
       </CardContent>
     </Card>
   );
+}
+
+
+export default function Page() {
+  return (
+    <Suspense>
+      <TokenSwap/>
+    </Suspense>
+  )
 }

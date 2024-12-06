@@ -1,5 +1,6 @@
-import React from "react";
+import { USDT_MINT } from "@/lib/constant";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <div className="flex items-center justify-items-center">HomePage</div>;
+  redirect(`/swap/?inputMint=sol&outputMint=${USDT_MINT}`);
 }

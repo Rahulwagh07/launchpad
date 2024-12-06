@@ -9,10 +9,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TokenTypes } from "@/types/token";
-import { Copy, ExternalLink, Search } from "lucide-react";
+import { ExternalLink, Search } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { CopyButton } from "./common/copy-button";
 
 interface TokenSelectModalProps {
   isOpen: boolean;
@@ -43,14 +43,6 @@ export function TokenSelectModal({
         token.mint.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success("Token adress copied to clipboard");
-    } catch (err) {
-      toast.error("Failed to copy address");
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
@@ -118,17 +110,9 @@ export function TokenSelectModal({
                   <div className="font-medium">{token.balance.toFixed(4)}</div>
                   <div className="flex items-center gap-1 text-sm text-zinc-400">
                     <span className="max-w-[100px]">
-                      {token.mint.slice(0, 6)}...{token.mint.slice(-5)}
+                      {token.mint.slice(0, 5)}..{token.mint.slice(-5)}
                     </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(token.mint);
-                      }}
-                      className="p-1 hover:text-white"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </button>
+                    <CopyButton value={token.mint} className=""/>
                     <a
                       href={`https://explorer.solana.com/address/${token.mint}?cluster=devnet`}
                       target="_blank"

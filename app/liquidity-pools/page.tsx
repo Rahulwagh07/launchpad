@@ -31,6 +31,7 @@ export default function Page() {
 
   useEffect(() => {
     handleFetchLiquidityInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey]);
 
   return (
