@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { PlusCircle } from "lucide-react";
 import { PoolsTable } from "@/components/pool-table";
 import { Button } from "@/components/ui/button";
-import { PoolsSkeleton } from "@/components/skelton/PoolSkelton";
+import { PoolsSkeleton } from "@/components/skelton/pool-skelton";
 import { connection } from "@/lib/constant";
 import { fetchPoolInfoByIds } from "@/lib/raydium/helper";
 import type { PoolInfo } from "@/types/raydium";
