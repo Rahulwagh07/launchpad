@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       message: 'Metadata uploaded successfully',
       metadataUrl: metadataUploadResult.secure_url,
     });
-  } catch (error) {
+  } catch (_) {
     return NextResponse.json(
       { message: 'Error uploading file' },
       { status: 500 }

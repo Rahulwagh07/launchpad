@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@/styles/globals.css"
-import AppWalletProvider from "../lib/AppWalletProvider";
+import AppWalletProvider from "../lib/provider";
 import Appbar from "@/components/appbar";
 import { Toaster } from "react-hot-toast";
 

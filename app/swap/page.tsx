@@ -26,7 +26,7 @@ function TokenSwap() {
   const searchParams = useSearchParams();
   const { connection } = useConnection();
   const wallet = useWallet();
-  
+
   const [userTokens, setUserTokens] = useState<TokenTypes[]>([]);
   const [selectedTokenA, setSelectedTokenA] = useState<TokenTypes | null>(null);
   const [selectedTokenB, setSelectedTokenB] = useState<TokenTypes | null>(null);
@@ -38,38 +38,41 @@ function TokenSwap() {
   const [isSelectingTokenA, setIsSelectingTokenA] = useState(false);
   const [isSelectingTokenB, setIsSelectingTokenB] = useState(false);
   const [error, setError] = useState<string | null>(null);
- 
+
   useEffect(() => {
     const fetchAndSetTokens = async () => {
       if (!wallet.publicKey) return;
-  
+
       try {
         const res = await fetchUserTokens(wallet, connection);
         setUserTokens(res);
-  
+
         const inputMint =
-          searchParams.get("inputMint") === "sol" ? SOL_MINT : searchParams.get("inputMint");
+          searchParams.get("inputMint") === "sol"
+            ? SOL_MINT
+            : searchParams.get("inputMint");
         const outputMint =
-          searchParams.get("outputMint") === "sol" ? SOL_MINT : searchParams.get("outputMint");
-  
+          searchParams.get("outputMint") === "sol"
+            ? SOL_MINT
+            : searchParams.get("outputMint");
+
         const tokenA = inputMint
           ? res.find((token) => token.mint === inputMint)
           : res.find((token) => token.mint === SOL_MINT);
         const tokenB = outputMint
           ? res.find((token) => token.mint === outputMint)
           : null;
-  
+
         setSelectedTokenA(tokenA || null);
         setSelectedTokenB(tokenB || null);
       } catch (error) {
         console.error("Error fetching tokens:", error);
       }
     };
-  
+
     fetchAndSetTokens();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey, connection, searchParams]);
-  
 
   useEffect(() => {
     const fetchTokens = async () => {
@@ -83,14 +86,20 @@ function TokenSwap() {
       }
     };
     fetchTokens();
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey, connection]);
 
   useEffect(() => {
     if (selectedTokenA && selectedTokenB) {
       const newParams = new URLSearchParams();
-      newParams.set('inputMint', selectedTokenA.mint === SOL_MINT ? 'sol' : selectedTokenA.mint);
-      newParams.set('outputMint', selectedTokenB.mint === SOL_MINT ? 'sol' : selectedTokenB.mint);
+      newParams.set(
+        "inputMint",
+        selectedTokenA.mint === SOL_MINT ? "sol" : selectedTokenA.mint
+      );
+      newParams.set(
+        "outputMint",
+        selectedTokenB.mint === SOL_MINT ? "sol" : selectedTokenB.mint
+      );
       router.replace(`/swap?${newParams.toString()}`, { scroll: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,6 +149,10 @@ function TokenSwap() {
 
   const handleSwap = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!wallet.connected) {
+      toast.error("Wallet not connected!");
+      return;
+    }
     if (!selectedTokenA || !selectedTokenB || !amountA || !amountB) {
       toast.error(
         "Incomplete Information: Please select tokens and enter an amount to swap."
@@ -224,12 +237,12 @@ function TokenSwap() {
 
   const setSelectedTokenAWithUpdate = (token: TokenTypes | null) => {
     setSelectedTokenA(token);
-    setAmountB(0);    
+    setAmountB(0);
   };
-  
+
   const setSelectedTokenBWithUpdate = (token: TokenTypes | null) => {
     setSelectedTokenB(token);
-    setAmountB(0);  
+    setAmountB(0);
   };
 
   return (
@@ -273,7 +286,7 @@ function TokenSwap() {
               type="button"
               className="p-2.5 bg-zinc-800 border border-zinc-700 rounded-full text-white hover:bg-zinc-700"
             >
-            <SwapIcon className="rotate-90"/>
+              <SwapIcon className="rotate-90" />
             </Button>
           </div>
 
@@ -286,7 +299,13 @@ function TokenSwap() {
                 <Input
                   id="buyAmount"
                   type="number"
-                  value={amountB !== null ? (amountB === 0 ? 0 :  amountB.toFixed(6)) : ""}
+                  value={
+                    amountB !== null
+                      ? amountB === 0
+                        ? 0
+                        : amountB.toFixed(6)
+                      : ""
+                  }
                   readOnly
                   placeholder="0"
                   className="bg-transparent border-none text-white text-lg w-full focus:border-none focus:outline-none"
@@ -347,11 +366,10 @@ function TokenSwap() {
   );
 }
 
-
 export default function Page() {
   return (
     <Suspense>
-      <TokenSwap/>
+      <TokenSwap />
     </Suspense>
-  )
+  );
 }

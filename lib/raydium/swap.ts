@@ -11,9 +11,10 @@ import {
   CurveCalculator,
   DEVNET_PROGRAM_ID,
   getCpmmPdaAmmConfigId,
+  getCpmmPdaPoolId,
   Raydium,
 } from "@raydium-io/raydium-sdk-v2";
-import { fetchPoolInfo } from "./helper";
+
 
 export const swapTokenAForTokenB = async (
   wallet: WalletContextState,
@@ -73,33 +74,6 @@ export const swapTokenAForTokenB = async (
     console.error(`Error during swap:`, error);
     return false;
   }
-};
-
-
-const fetchPoolData = async (raydium: Raydium, poolId: string) => {
-  try {
-    if (raydium.cluster === "mainnet") {
-      const data = await raydium.api.fetchPoolById({ ids: poolId });
-      const rpcData = await raydium.cpmm.getRpcPoolInfo(data[0].id, true);
-      return { poolInfo: data[0], rpcData };
-    } else {
-      const { poolInfo, poolKeys, rpcData } = await raydium.cpmm.getPoolInfoFromRpc(poolId);
-      return { poolInfo, poolKeys, rpcData };
-    }
-  } catch (error) {
-    console.error("Error fetching pool data:", error);
-    return { poolInfo: null, poolKeys: null, rpcData: null };
-  }
-};
-
-
-//get the amount of  token held within the liquidity pool
-const getSwapReserves = (mintA: ApiV3Token, rpcData: CpmmRpcData) => {
-  const isMintAInBase = mintA.address === rpcData.mintA.toBase58();
-  return {
-    swapSourceAmount: isMintAInBase ? rpcData.baseReserve : rpcData.quoteReserve,
-    swapDestinationAmount: isMintAInBase ? rpcData.quoteReserve : rpcData.baseReserve,
-  };
 };
 
 export const getAmountOfTokenBForTokenA = async (
@@ -168,6 +142,31 @@ export const getAmountOfTokenBForTokenA = async (
   }
 };
 
+const fetchPoolData = async (raydium: Raydium, poolId: string) => {
+  try {
+    if (raydium.cluster === "mainnet") {
+      const data = await raydium.api.fetchPoolById({ ids: poolId });
+      const rpcData = await raydium.cpmm.getRpcPoolInfo(data[0].id, true);
+      return { poolInfo: data[0], rpcData };
+    } else {
+      const { poolInfo, poolKeys, rpcData } = await raydium.cpmm.getPoolInfoFromRpc(poolId);
+      return { poolInfo, poolKeys, rpcData };
+    }
+  } catch (error) {
+    console.error("Error fetching pool data:", error);
+    return { poolInfo: null, poolKeys: null, rpcData: null };
+  }
+};
+
+
+//get the amount of  token held within the liquidity pool
+const getSwapReserves = (mintA: ApiV3Token, rpcData: CpmmRpcData) => {
+  const isMintAInBase = mintA.address === rpcData.mintA.toBase58();
+  return {
+    swapSourceAmount: isMintAInBase ? rpcData.baseReserve : rpcData.quoteReserve,
+    swapDestinationAmount: isMintAInBase ? rpcData.quoteReserve : rpcData.baseReserve,
+  };
+};
 
 const fetchCPMMPoolInfo = async (
   wallet: WalletContextState,
@@ -250,6 +249,27 @@ const fetchCPMMPoolInfo = async (
     };
   } catch (error) {
     console.error("Error in fetching CPMM Pool Info:", error);
+    return null;
+  }
+};
+
+const fetchPoolInfo = async (
+  raydium: Raydium,
+  configId: string,
+  tokenMintA: PublicKey,
+  tokenMintB: PublicKey
+) => {
+  try {
+    const { publicKey } = getCpmmPdaPoolId(
+      DEVNET_PROGRAM_ID.CREATE_CPMM_POOL_PROGRAM,
+      new PublicKey(configId),
+      tokenMintA,
+      tokenMintB
+    );
+    const poolId = publicKey.toBase58();
+    const poolInfo = await raydium.cpmm.getRpcPoolInfos([poolId]);
+    return poolInfo ? { info: poolInfo[poolId], poolId } : null;
+  } catch (_) {
     return null;
   }
 };

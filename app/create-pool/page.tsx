@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createLiquidityPool } from "@/lib/raydium/liquidity-pool";
+import axios from "axios";
 
 export default function LiquidityPoolCreator() {
   const { connection } = useConnection();
@@ -41,6 +42,11 @@ export default function LiquidityPoolCreator() {
       setStatus(
         `Liquidity pool created successfully! Transaction ID: ${result.txId}`
       );
+      const poolId = result.extInfo.address.poolId.toString();
+      await axios.post("/api/pool", {
+        poolId: poolId,
+        address: wallet.publicKey.toString(),
+      });
     } catch (error) {
       console.error("Error creating liquidity pool:", error);
       setStatus(`Error creating liquidity pool: ${error}`);

@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { PoolInfo } from './pool-info'
-import type { PoolInfo as PoolInfoType } from '@/types/raydium'
-import SwapIcon from './icons/swap'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { PoolInfo } from "./pool-info";
+import type { PoolInfo as PoolInfoType } from "@/types/raydium";
+import SwapIcon from "./icons/swap";
 
 interface PoolsTableProps {
-  pools: PoolInfoType[]
+  pools: PoolInfoType[];
 }
 
 export function PoolsTable({ pools }: PoolsTableProps) {
@@ -16,7 +16,9 @@ export function PoolsTable({ pools }: PoolsTableProps) {
       <table className="w-full text-left">
         <thead>
           <tr className="border-b border-zinc-800">
-            <th className="sm:px-4 py-3 text-sm font-medium text-zinc-400">Pool</th>
+            <th className="sm:px-4 py-3 text-sm font-medium text-zinc-400">
+              Pool
+            </th>
             <th className="sm:px-4 py-3 text-sm font-medium text-zinc-400">
               Liquidity
             </th>
@@ -48,23 +50,34 @@ export function PoolsTable({ pools }: PoolsTableProps) {
               </td>
               <td className="sm:px-4 py-3">
                 <div className="flex items-center justify-end gap-2">
-                  <Link href={`/swap/?inputMint=${pool.tokenA.mint}&outputMint=${pool.tokenB.mint}`}>
+                  <Link
+                    href={`/swap/?inputMint=${pool.tokenA.mint}&outputMint=${pool.tokenB.mint}`}
+                  >
                     <Button
                       size="sm"
                       className="bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20"
                     >
-                      <SwapIcon color='#06b6d4' className='hidden sm:block'/>
+                      <SwapIcon color="#06b6d4" className="hidden sm:block" />
                       Swap
                     </Button>
                   </Link>
                   {/* //to do */}
-                  <Link href={`/deposit/${pool.poolId}`}>          
+                  <Link href={`/deposit/${pool.poolId}`}>
                     <Button
                       size="sm"
                       variant="outline"
                       className="border-cyan-500/20 text-cyan-500 hover:text-cyan-500/50 hover:bg-cyan-500/10"
                     >
                       Deposit
+                    </Button>
+                  </Link>
+                  <Link href={`/deposit/${pool.poolId}`}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-cyan-500/20 text-cyan-500 hover:text-cyan-500/50 hover:bg-cyan-500/10"
+                    >
+                      Withdraw
                     </Button>
                   </Link>
                 </div>
@@ -74,6 +87,5 @@ export function PoolsTable({ pools }: PoolsTableProps) {
         </tbody>
       </table>
     </div>
-  )
+  );
 }
-

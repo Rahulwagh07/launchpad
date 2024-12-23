@@ -6,6 +6,7 @@ import type {
   PropsWithChildren,
   ReactElement,
 } from "react";
+ 
 
 const LABELS = {
   "change-wallet": "Change wallet",
@@ -17,8 +18,9 @@ const LABELS = {
   "no-wallet": "Connect Wallet",
 } as const;
 
-export function WalletMultiButton(props: ButtonProps) {
-  return <BaseWalletMultiButton {...props} labels={LABELS} />;
+export function ConnectWalletButton(props: ButtonProps) {
+  return <BaseWalletMultiButton {...props} labels={LABELS}  
+  />;
 }
 
 export type ButtonProps = PropsWithChildren<{

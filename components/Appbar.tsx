@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Card } from "./ui/card";
-import { WalletMultiButton } from "./common/wallet-button";
+import { ConnectWalletButton } from "./common/wallet-button";
 import { usePathname } from "next/navigation";
 import { USDT_MINT } from "@/lib/constant";
 
@@ -58,7 +58,7 @@ function Appbar() {
               </motion.div>
             ))}
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <WalletMultiButton />
+              <ConnectWalletButton />
             </motion.div>
           </div>
         </Card>

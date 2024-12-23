@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { TokenTypes } from "@/types/token";
 import { ExternalLink, Search } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CopyButton } from "./common/copy-button";
+import { POPULAR_TOKENS } from "@/lib/token-data";
 
 interface TokenSelectModalProps {
   isOpen: boolean;
@@ -25,11 +26,25 @@ interface TokenSelectModalProps {
 export function TokenSelectModal({
   isOpen,
   onClose,
-  tokens,
+  tokens: initialTokens,
   onSelect,
   selectedToken2,
 }: TokenSelectModalProps) {
+  const [tokens, setTokens] = useState<TokenTypes[]>(initialTokens);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const existingSymbols = initialTokens.map((token) => token.symbol);
+    const missingTokens = POPULAR_TOKENS.filter(
+      (token) => !existingSymbols.includes(token.symbol)
+    );
+
+    if (missingTokens.length > 0) {
+      setTokens([...initialTokens, ...missingTokens]);
+    } else {
+      setTokens(initialTokens);
+    }
+  }, [initialTokens]);
 
   const popularTokens = tokens.filter((token) =>
     ["SOL", "USDC", "USDT"].includes(token.symbol)
@@ -42,7 +57,6 @@ export function TokenSelectModal({
         token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
         token.mint.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
@@ -61,6 +75,8 @@ export function TokenSelectModal({
             className="pl-9 bg-[#131318] border-zinc-800 text-white focus:border-none focus:outline-none"
           />
         </div>
+
+        {/* Popular Tokens */}
         {popularTokens.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-zinc-400">
@@ -84,12 +100,13 @@ export function TokenSelectModal({
             </div>
           </div>
         )}
+
         <div className="space-y-2">
           <div className="flex justify-between text-sm text-zinc-400">
             <span>Token</span>
             <span>Balance/Address</span>
           </div>
-          <div className="space-y-2  scrollable-container">
+          <div className="space-y-2 scrollable-container">
             {filteredTokens.map((token) => (
               <div
                 key={token.mint}
@@ -112,7 +129,7 @@ export function TokenSelectModal({
                     <span className="max-w-[100px]">
                       {token.mint.slice(0, 5)}..{token.mint.slice(-5)}
                     </span>
-                    <CopyButton value={token.mint} className=""/>
+                    <CopyButton value={token.mint} className="" />
                     <a
                       href={`https://explorer.solana.com/address/${token.mint}?cluster=devnet`}
                       target="_blank"

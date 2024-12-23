@@ -9,8 +9,9 @@ import { PoolsTable } from "@/components/pool-table";
 import { Button } from "@/components/ui/button";
 import { PoolsSkeleton } from "@/components/skelton/PoolSkelton";
 import { connection } from "@/lib/constant";
-import { fetchAllPoolsCreated } from "@/lib/raydium/helper";
+import { fetchPoolInfoByIds } from "@/lib/raydium/helper";
 import type { PoolInfo } from "@/types/raydium";
+import axios from "axios";
 
 export default function Page() {
   const wallet = useWallet();
@@ -24,8 +25,15 @@ export default function Page() {
     }
 
     try {
-      setLoading(true);
-      const liquidityInfo = await fetchAllPoolsCreated(wallet, connection);
+      const res = await axios.get(
+        `/api/pool/?address=${wallet.publicKey?.toString()}`
+      );
+      const poolIds = res.data.data;
+      const liquidityInfo = await fetchPoolInfoByIds(
+        wallet,
+        poolIds,
+        connection
+      );
       setPools(liquidityInfo);
     } catch (error) {
       console.error("Failed to fetch liquidity info:", error);
@@ -37,11 +45,11 @@ export default function Page() {
   useEffect(() => {
     handleFetchLiquidityInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet.publicKey]);
+  }, []);
 
   return (
-    <div className="p-2 md:p-8">
-      <div className="mx-auto max-w-7xl">
+    <div className="p-2 md:py-8">
+      <div className="mx-auto w-full sm:w-8/12">
         <div className="mb-8 flex items-center justify-between">
           <motion.h1
             initial={{ opacity: 0, x: -20 }}

@@ -13,11 +13,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Image {
-  id        Int      @id @default(autoincrement())
-  publicId  String
-  format    String
-  version   String
-  imageUrl  String   // This will store the full Cloudinary URL
-  createdAt DateTime @default(now())
+model User {
+  id       Int         @id @default(autoincrement())
+  address  String
+  pools    String[]
 }

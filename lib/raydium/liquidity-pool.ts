@@ -21,6 +21,7 @@ import {
 } from "@solana/web3.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 
+
 export const createLiquidityPool = async ({
   connection,
   wallet,
@@ -89,8 +90,6 @@ export const createLiquidityPool = async ({
   });
 
   const { txId } = await execute({ sendAndConfirm: true });
-
-  console.log("Pool created successfully:", { txId, extInfo });
   return { txId, extInfo };
 };
 
@@ -186,3 +185,4 @@ const createMintInfo = (
   programId: programId.toBase58(),
   decimals,
 });
+
