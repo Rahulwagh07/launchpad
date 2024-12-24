@@ -19,6 +19,8 @@ import {
 } from "@/lib/raydium/utils";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
+import axios from "axios";
+import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
 export default function DepositPage({
   params,
@@ -44,7 +46,7 @@ export default function DepositPage({
       if (res[0]?.tokenB.mint) {
         const tokenBMint = new PublicKey(res[0].tokenB.mint);
         if (wallet.publicKey) {
-          const balance = await getTokenBalance(wallet.publicKey, tokenBMint);
+          const balance = await getTokenBalance(wallet.publicKey, tokenBMint, TOKEN_2022_PROGRAM_ID);
           setTokenBBalance(balance);
         }
       }
@@ -141,6 +143,10 @@ export default function DepositPage({
     try {
       await deposit(wallet, poolId, parseFloat(amountA));
       toast.success("Deposit successful!");
+      await axios.post("/api/pool", {
+        poolId: poolId,
+        address: wallet.publicKey?.toString(),
+      });
       setAmountA("");
       setAmountB("");
       fetchPoolInfo();

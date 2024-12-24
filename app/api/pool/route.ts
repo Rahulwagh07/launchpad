@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       },
     });
 
-    if (user) {
+    if (user && !user.pools.includes(poolId)) {
       await prisma.user.update({
         where: {
           id: user.id,
@@ -53,7 +53,7 @@ export async function GET(req: Request) {
           pools: true,
         },
       });
-      const poolIds = allPools.flatMap(user => user.pools);
+      const poolIds = [...new Set(allPools.flatMap(user => user.pools))];
       return NextResponse.json(
         {data: poolIds},
         { status: 200 }

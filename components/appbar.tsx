@@ -13,14 +13,12 @@ function Appbar() {
 
   return (
     <div className="flex items-center justify-between sm:justify-center">
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+      <div
         className="w-full sm:w-8/12"
       >
         <Card className="flex bg-zinc-900/50 backdrop-blur-xl z-50 items-center justify-center align-baseline px-2 sm:px-12 gap-2 shadow-lg mb-4 py-1.5 mt-4 rounded-2xl h-16 text-white border border-slate-800">
-          <div className="flex items-center justify-center gap-12">
+           <div className="flex items-center justify-between w-full">
+           <div className="flex items-center justify-center gap-12">
             {[
               {
                 href: `/swap/?inputMint=sol&outputMint=${USDT_MINT}`,
@@ -30,10 +28,8 @@ function Appbar() {
               { href: "/liquidity-pools", label: "Liquidity" },
               { href: "/create-token", label: "Create Token" },
             ].map((item) => (
-              <motion.div
+              <div
                 key={item.href}
-                whileHover={{ y: -2 }}
-                whileTap={{ y: 0 }}
               >
                 <Link
                   href={item.href}
@@ -55,14 +51,13 @@ function Appbar() {
                     />
                   ) : null}
                 </Link>
-              </motion.div>
+              </div>
             ))}
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <ConnectWalletButton />
-            </motion.div>
           </div>
+          <ConnectWalletButton />
+           </div>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

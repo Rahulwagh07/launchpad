@@ -53,7 +53,7 @@ export default function Page() {
             All Liquidity Pools
           </motion.h1>
           <Link href="/create-pool">
-            <Button className="bg-cyan-500 text-white hover:bg-cyan-600">
+            <Button className="bg-pink-500 text-white hover:bg-pink-600">
               <PlusCircle className="mr-2 h-4 w-4" />
               Create Pool
             </Button>

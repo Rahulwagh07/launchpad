@@ -2,7 +2,6 @@ import { CREATE_CPMM_POOL_PROGRAM, DEV_CREATE_CPMM_POOL_PROGRAM } from '@raydium
 import axios from 'axios';
 import { PublicKey } from '@solana/web3.js';
 import { connection } from '../constant';
-import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import { PoolInfo } from '@/types/raydium';
 
 const VALID_PROGRAM_ID = new Set([CREATE_CPMM_POOL_PROGRAM.toBase58(), DEV_CREATE_CPMM_POOL_PROGRAM.toBase58()]);
@@ -21,10 +20,10 @@ export const getCurrentSolanPrice = async () => {
   }
 }
 
-export const getTokenBalance = async (walletAddress: PublicKey, tokenAccountAddress: PublicKey) => {
+export const getTokenBalance = async (walletAddress: PublicKey, tokenAccountAddress: PublicKey, programId: PublicKey) => {
   try {
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(walletAddress, {
-      programId: TOKEN_2022_PROGRAM_ID,
+      programId: programId,
     });
 
     const tokenAccountInfo = tokenAccounts.value.find(account => {
@@ -91,9 +90,16 @@ export const calculatePoolValueRatio = (
   };
 };
 
-export const calculateUsdtValue = (tokenType: "A" | "B", amount: string) => {
+export const calculateUsdtValue = (tokenType: "A" | "B" | "C", amount: string) => {
   if (!amount) return 0;
   const value = parseFloat(amount);
   if (isNaN(value)) return 0;
-  return tokenType === "A" ? value * 200 : value * 0.98;
+  if (tokenType === "A") {
+    return value * 200;
+  } else if (tokenType === "B") {
+    return value * 0.98;
+  } else if (tokenType === "C") {
+    return value * 200.98;
+  }
+  return 0;
 };
