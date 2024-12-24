@@ -185,7 +185,9 @@ export default function DepositPage({
                 <Image
                   src={pool.tokenA.image}
                   alt={pool.tokenA.symbol}
-                  className="w-8 h-8 rounded-full"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
                 />
               )}
               <span className="text-lg font-medium text-white">
@@ -235,6 +237,8 @@ export default function DepositPage({
                 <Image
                   src={pool.tokenB.image}
                   alt={pool.tokenB.symbol}
+                  width={32}
+                  height={32}
                   className="w-8 h-8 rounded-full"
                 />
               )}
@@ -294,6 +298,8 @@ export default function DepositPage({
                 <Image
                   src={pool.tokenA.image}
                   alt={pool.tokenA.symbol}
+                  width={32}
+                  height={32}
                   className="w-5 h-5 rounded-full"
                 />
               )}
@@ -301,6 +307,8 @@ export default function DepositPage({
                 <Image
                   src={pool.tokenB.image}
                   alt={pool.tokenB.symbol}
+                  width={32}
+                  height={32}
                   className="w-5 h-5 rounded-full -ml-2"
                 />
               )}

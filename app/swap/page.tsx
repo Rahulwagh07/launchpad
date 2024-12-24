@@ -221,7 +221,7 @@ function TokenSwap() {
               alt={token.name}
               width={24}
               height={24}
-              className="rounded-full"
+              className="h-6 w-6 rounded-full"
             />
           ) : (
             token.image
