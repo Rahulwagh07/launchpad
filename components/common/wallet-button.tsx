@@ -6,7 +6,6 @@ import type {
   PropsWithChildren,
   ReactElement,
 } from "react";
- 
 
 const LABELS = {
   "change-wallet": "Change wallet",
@@ -19,8 +18,21 @@ const LABELS = {
 } as const;
 
 export function ConnectWalletButton(props: ButtonProps) {
-  return <BaseWalletMultiButton {...props} labels={LABELS}  
-  />;
+  return (
+    <BaseWalletMultiButton
+      {...props}
+      labels={LABELS}
+      style={{
+        backgroundColor: '#06b6d4',  
+        color: 'white',
+        fontWeight: '500',
+        borderRadius: '0.375rem', 
+        padding: '0.5rem 1rem', 
+        // transition: 'none',
+        height: '44px'
+      }}
+    />
+  );
 }
 
 export type ButtonProps = PropsWithChildren<{
@@ -32,3 +44,4 @@ export type ButtonProps = PropsWithChildren<{
   style?: CSSProperties;
   tabIndex?: number;
 }>;
+

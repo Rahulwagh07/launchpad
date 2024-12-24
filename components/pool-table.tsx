@@ -1,16 +1,20 @@
-"use client";
+'use client'
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PoolInfo } from "./pool-info";
 import type { PoolInfo as PoolInfoType } from "@/types/raydium";
 import SwapIcon from "./icons/swap";
+import { usePathname } from "next/navigation";
 
 interface PoolsTableProps {
   pools: PoolInfoType[];
 }
 
 export function PoolsTable({ pools }: PoolsTableProps) {
+  const pathname = usePathname()
+  const isPortfolio = pathname.startsWith('/portfolio');
+  
   return (
     <div className="relative">
       <table className="w-full text-left">
@@ -61,7 +65,6 @@ export function PoolsTable({ pools }: PoolsTableProps) {
                       Swap
                     </Button>
                   </Link>
-                  {/* //to do */}
                   <Link href={`/deposit/${pool.poolId}`}>
                     <Button
                       size="sm"
@@ -71,7 +74,8 @@ export function PoolsTable({ pools }: PoolsTableProps) {
                       Deposit
                     </Button>
                   </Link>
-                  <Link href={`/deposit/${pool.poolId}`}>
+                  <Link href={`/withdraw/${pool.poolId}`}
+                  className={`${isPortfolio ? '' : 'hidden'}`}>
                     <Button
                       size="sm"
                       variant="outline"

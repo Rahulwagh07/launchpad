@@ -20,6 +20,4 @@ export const initRaydiumSDK = async (wallet: WalletContextState) => {
     })
     return raydium
   }
-
-
 }

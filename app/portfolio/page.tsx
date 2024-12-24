@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { PlusCircle } from "lucide-react";
 import { PoolsTable } from "@/components/pool-table";
-import { Button } from "@/components/ui/button";
 import { PoolsSkeleton } from "@/components/skelton/pool-skelton";
 import { connection } from "@/lib/constant";
 import { fetchPoolInfoByIds } from "@/lib/raydium/helper";
 import type { PoolInfo } from "@/types/raydium";
 import axios from "axios";
+import { ConnectWalletButton } from "@/components/common/wallet-button";
+import MainButton from "@/components/common/button";
 
 export default function Page() {
   const wallet = useWallet();
@@ -45,7 +45,7 @@ export default function Page() {
   useEffect(() => {
     handleFetchLiquidityInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [wallet.publicKey]);
 
   return (
     <div className="p-2 md:py-8">
@@ -56,32 +56,36 @@ export default function Page() {
             animate={{ opacity: 1, x: 0 }}
             className="text-2xl font-bold md:text-3xl"
           >
-            Your Liquidity Pools
+            My Portfolio
           </motion.h1>
-          <Link href="/create-pool">
-            <Button className="bg-cyan-500 text-white hover:bg-cyan-600">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Pool
-            </Button>
-          </Link>
         </div>
         <div className="rounded-lg border border-zinc-800 bg-zinc-950/50 px-2">
-          {loading ? (
-            <div className="p-4">
-              <PoolsSkeleton />
-            </div>
-          ) : pools.length > 0 ? (
-            <PoolsTable pools={pools} />
-          ) : (
+           {
+            wallet.connected ? 
+             <>
+             {loading ? (
+              <div className="p-4">
+                <PoolsSkeleton />
+              </div>
+            ) : pools.length > 0 ? (
+              <PoolsTable pools={pools} />
+            ) : (
+              <div className="flex min-h-[400px] flex-col items-center justify-center p-4">
+                <p className="mb-4 text-zinc-400">No liquidity pools found! Creat your first liquidity pool.</p>
+                <MainButton 
+                  href="/create-pool"
+                  icon={<PlusCircle />}
+                  text="Create Pool" 
+                />
+              </div>
+            )}</> :
+            <>
             <div className="flex min-h-[400px] flex-col items-center justify-center p-4">
-              <p className="mb-4 text-zinc-400">No liquidity pools found</p>
-              <Link href="/create-pool">
-                <Button className="bg-cyan-500 text-white hover:bg-cyan-600">
-                  Create Your First Pool
-                </Button>
-              </Link>
-            </div>
-          )}
+                <p className="mb-4 text-zinc-400">Connect your wallet</p>
+                  <ConnectWalletButton/>
+              </div>
+            </>
+           }
         </div>
       </div>
     </div>
