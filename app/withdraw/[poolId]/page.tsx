@@ -147,7 +147,7 @@ export default function WithdrawPage({
         </div>
         <Button
           onClick={handleWithdrawLiquidity}
-          className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded"
+          className="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-6 px-4 rounded-xl"
           disabled={
             !wallet.connected ||
             !amount ||

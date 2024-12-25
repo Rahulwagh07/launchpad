@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { txVersion } from "../constant";
+import { connection, txVersion } from "../constant";
 import {
   DEVNET_PROGRAM_ID,
   getCpmmPdaAmmConfigId
@@ -29,69 +29,86 @@ export const createLiquidityPool = async ({
   token2,
   token1Amount,
   token2Amount,
-  token1ProgramId,
-  token2ProgramId,
 }: PoolCreationParams) => {
   if (!wallet.publicKey) {
     throw new Error("Wallet is not connected");
   }
 
-  const raydium = await initRaydiumSDK(wallet);
+  try {
+    const raydium = await initRaydiumSDK(wallet);
+    const token1ProgramId = await getProgramId(token1);
+    const token2ProgramId = await getProgramId(token2);
+    if (!token1ProgramId || !token2ProgramId) {
+      console.log("Error getting program IDs");
+      return null;
+    }
+    await wrapSolIfNativeToken(
+      token1,
+      token2,
+      token1Amount,
+      token2Amount,
+      connection,
+      wallet
+    );
 
-  // wrap SOL if either token is SOL
-  await wrapSolIfNativeToken(
-    token1,
-    token2,
-    token1Amount,
-    token2Amount,
-    connection,
-    wallet
-  );
+    const token1Decimals = await getTokenDecimals(
+      token1,
+      token1ProgramId,
+      connection
+    );
+    const token2Decimals = await getTokenDecimals(
+      token2,
+      token2ProgramId,
+      connection
+    );
 
-  const token1Decimals = await getTokenDecimals(
-    token1,
-    token1ProgramId,
-    connection
-  );
-  const token2Decimals = await getTokenDecimals(
-    token2,
-    token2ProgramId,
-    connection
-  );
+    const mintA = createMintInfo(token1, token1ProgramId, token1Decimals);
+    const mintB = createMintInfo(token2, token2ProgramId, token2Decimals);
 
-  const mintA = createMintInfo(token1, token1ProgramId, token1Decimals);
-  const mintB = createMintInfo(token2, token2ProgramId, token2Decimals);
+    const mintAAmount = new BN(token1Amount * 10 ** token1Decimals);
+    const mintBAmount = new BN(token2Amount * 10 ** token2Decimals);
 
-  const mintAAmount = new BN(token1Amount * 10 ** token1Decimals);
-  const mintBAmount = new BN(token2Amount * 10 ** token2Decimals);
+    const feeConfigs = await raydium.api.getCpmmConfigs();
+    if (raydium.cluster === "devnet") {
+      feeConfigs.forEach((config) => {
+        config.id = getCpmmPdaAmmConfigId(
+          DEVNET_PROGRAM_ID.CREATE_CPMM_POOL_PROGRAM,
+          config.index
+        ).publicKey.toBase58();
+      });
+    }
 
-  const feeConfigs = await raydium.api.getCpmmConfigs();
-  if (raydium.cluster === "devnet") {
-    feeConfigs.forEach((config) => {
-      config.id = getCpmmPdaAmmConfigId(
-        DEVNET_PROGRAM_ID.CREATE_CPMM_POOL_PROGRAM,
-        config.index
-      ).publicKey.toBase58();
+    const { execute, extInfo } = await raydium.cpmm.createPool({
+      programId: DEVNET_PROGRAM_ID.CREATE_CPMM_POOL_PROGRAM,
+      poolFeeAccount: DEVNET_PROGRAM_ID.CREATE_CPMM_POOL_FEE_ACC,
+      mintA,
+      mintB,
+      mintAAmount,
+      mintBAmount,
+      startTime: new BN(0),
+      feeConfig: feeConfigs[0],
+      associatedOnly: false,
+      ownerInfo: { useSOLBalance: true },
+      txVersion,
     });
+
+    const { txId } = await execute({ sendAndConfirm: true });
+
+    const txConfirmation = await connection.getTransaction(txId, {
+      commitment: "confirmed",
+    });
+
+    if (!txConfirmation || !txConfirmation.meta || txConfirmation.meta.err) {
+      throw new Error(`Transaction failed with ID: ${txId}`);
+    }
+
+    return { txId, extInfo };
+  } catch (error) {
+    console.error("Error creating liquidity pool:", error);
+    return null;
   }
-
-  const { execute, extInfo } = await raydium.cpmm.createPool({
-    programId: DEVNET_PROGRAM_ID.CREATE_CPMM_POOL_PROGRAM,
-    poolFeeAccount: DEVNET_PROGRAM_ID.CREATE_CPMM_POOL_FEE_ACC,
-    mintA,
-    mintB,
-    mintAAmount,
-    mintBAmount,
-    startTime: new BN(0),
-    feeConfig: feeConfigs[0],
-    associatedOnly: false,
-    ownerInfo: { useSOLBalance: true },
-    txVersion,
-  });
-
-  const { txId } = await execute({ sendAndConfirm: true });
-  return { txId, extInfo };
 };
+
 
 export async function wrapSol(
   connection: Connection,
@@ -185,4 +202,10 @@ const createMintInfo = (
   programId: programId.toBase58(),
   decimals,
 });
+
+const getProgramId = async (address: PublicKey) => {
+  const accountInfo = await connection.getAccountInfo(address);
+  const programId = accountInfo?.owner;
+  return programId;
+}
 

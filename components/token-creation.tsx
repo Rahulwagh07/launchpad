@@ -43,6 +43,7 @@ import { GoCheckCircleFill } from "react-icons/go";
 import { MdArrowOutward } from "react-icons/md";
 import Image from "next/image";
 import { Switch } from "./switch";
+import { Card } from "./ui/card";
 
 type FormValues = {
   name: string;
@@ -313,9 +314,10 @@ export function TokenLaunchpad() {
   };
 
   return (
-    <form
+   <Card className="bg-zinc-900 w-full lg:w-8/12 mx-auto border-zinc-700 text-white rounded-xl p-4 space-y-4 mt-10" >
+      <form
       onSubmit={handleSubmit(onSubmit)}
-      className="p-3 sm:p-8 w-[60rem] mx-auto bg-zinc-900 rounded-xl shadow-md text-white border-zinc-700"
+      className="p-3 sm:p-8   shadow-md text-white"
     >
       <div className="space-y-5">
         <div className="grid md:grid-cols-2 gap-4">
@@ -325,7 +327,7 @@ export function TokenLaunchpad() {
             </label>
             <Input
               {...register("name", { required: "Name is required" })}
-              className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
+              className="mt-1 block w-full h-12 rounded-md bg-slate-900 border-gray-600    text-white  focus:outline-none"
               placeholder="Enter the name of your token"
             />
             {errors.name && (
@@ -340,7 +342,7 @@ export function TokenLaunchpad() {
             </label>
             <Input
               {...register("symbol", { required: "Symbol is required" })}
-              className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
+             className="mt-1 block w-full h-12 rounded-md bg-slate-900 border-gray-600    text-white  focus:outline-none"
               placeholder="Put the symbol of your token"
             />
             {errors.symbol && (
@@ -369,7 +371,7 @@ export function TokenLaunchpad() {
                   message: "Decimals cannot exceed 18",
                 },
               })}
-              className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
+            className="mt-1 block w-full h-12 rounded-md bg-slate-900 border-gray-600    text-white  focus:outline-none"
               placeholder="Put the decimals quantity"
             />
             {errors.decimals && (
@@ -389,7 +391,7 @@ export function TokenLaunchpad() {
                 required: "Supply is required",
                 min: 1,
               })}
-              className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
+             className="mt-1 block w-full h-12 rounded-md bg-slate-900 border-gray-600    text-white  focus:outline-none"
               placeholder="Put the Supply of your Token"
             />
             {errors.supply && (
@@ -415,7 +417,7 @@ export function TokenLaunchpad() {
               className="hidden"
             />
 
-            <div className="flex justify-center h-28 bg-blue-950 mt-1 rounded-md border border-gray-600">
+            <div className="flex justify-center h-28 bg-slate-900    mt-1 rounded-md border border-gray-600">
               {imagePreview ? (
                 <Image
                   src={imagePreview}
@@ -450,7 +452,7 @@ export function TokenLaunchpad() {
               {...register("description", {
                 required: "Description is required",
               })}
-              className="mt-1 pl-3 text-sm pt-2 block w-full h-28 rounded-md bg-blue-950 border border-gray-600"
+               className="mt-1 pl-3 text-sm pt-2 block w-full h-28 rounded-md bg-slate-900 border border-gray-600 focus:outline-none"
               placeholder="Provide a brief description for your SPL Token"
             />
             {errors.description && (
@@ -484,7 +486,7 @@ export function TokenLaunchpad() {
                     : "hidden"
                 }`}
               >
-                default Mint Authority is wallet pubkey
+                default Mint Authority is token creator
               </label>
             </div>
             <Input
@@ -500,7 +502,7 @@ export function TokenLaunchpad() {
                   return true;
                 },
               })}
-              className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
+             className="mt-1 block w-full h-12 rounded-md bg-slate-900 border-gray-600    text-white  focus:outline-none"
               placeholder="Enter mint authority"
               disabled={!hasMintAuthority}
             />
@@ -533,7 +535,7 @@ export function TokenLaunchpad() {
                     : "hidden"
                 }`}
               >
-                default Freeze Authority is wallet pubkey
+                default Freeze Authority is token creator
               </label>
             </div>
             <Input
@@ -549,7 +551,7 @@ export function TokenLaunchpad() {
                   return true;
                 },
               })}
-              className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
+              className="mt-1 block w-full h-12 rounded-md bg-slate-900 border-gray-600    text-white  focus:outline-none"
               placeholder="Enter freeze authority"
               disabled={!hasFreezeAuthority}
             />
@@ -582,7 +584,7 @@ export function TokenLaunchpad() {
                     : "hidden"
                 }`}
               >
-                default Upgrade Authority is wallet pubkey
+                default Upgrade Authority is token creator
               </label>
             </div>
             <Input
@@ -598,7 +600,7 @@ export function TokenLaunchpad() {
                   return true;
                 },
               })}
-              className="mt-1 block w-full h-12 rounded-md bg-blue-950 border-gray-600 text-white"
+            className="mt-1 block w-full h-12 rounded-md bg-slate-900 border-gray-600    text-white  focus:outline-none"
               placeholder="Enter upgrade authority"
               disabled={!hasUpgradeAuthority}
             />
@@ -623,8 +625,8 @@ export function TokenLaunchpad() {
             )}
             <button
               type="submit"
-              className={`py-3 h-12 flex items-center justify-center px-4 rounded-md text-white bg-blue-800 hover:bg-blue-700
-              focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              className={`py-3 h-12 flex disabled:bg-pink-800 items-center justify-center px-4 rounded-md text-white bg-pink-600 hover:bg-pink-700
+              focus:outline-none  ${
                 isLoading ? "cursor-wait opacity-50" : ""
               }`}
               disabled={isLoading}
@@ -641,6 +643,8 @@ export function TokenLaunchpad() {
         </div>
       </div>
     </form>
+   </Card>
+   
   );
 }
 

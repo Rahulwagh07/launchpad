@@ -60,7 +60,7 @@ export function TokenSelectModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-[500px] bg-[#1a1b23] text-white border-zinc-800">
+      <DialogContent className="max-w-[95%] sm:max-w-[500px] bg-[#1a1b23] rounded-3xl text-white border-zinc-800">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-white">
             Select a token
@@ -87,7 +87,7 @@ export function TokenSelectModal({
                 <Button
                   key={token.mint}
                   variant="outline"
-                  className="bg-[#131318] border-zinc-800 hover:bg-zinc-800"
+                  className="bg-[#131318] border-zinc-800 hover:bg-zinc-700"
                   onClick={() => {
                     onSelect(token);
                     onClose();
@@ -158,7 +158,7 @@ function renderTokenImage(token: TokenTypes) {
         alt={token.name}
         width={24}
         height={24}
-        className="rounded-full"
+        className=" h-6 w-6 rounded-full"
       />
     );
   }

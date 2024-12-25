@@ -15,8 +15,8 @@ export interface PoolCreationParams {
   token2: PublicKey
   token1Amount: number
   token2Amount: number
-  token1ProgramId: PublicKey
-  token2ProgramId: PublicKey
+  // token1ProgramId: PublicKey
+  // token2ProgramId: PublicKey
 }
 
 export interface PoolInfo {

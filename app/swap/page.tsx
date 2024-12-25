@@ -71,7 +71,6 @@ function TokenSwap() {
     };
 
     fetchAndSetTokens();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey, connection, searchParams]);
 
   useEffect(() => {
@@ -86,7 +85,6 @@ function TokenSwap() {
       }
     };
     fetchTokens();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey, connection]);
 
   useEffect(() => {
@@ -102,7 +100,6 @@ function TokenSwap() {
       );
       router.replace(`/swap?${newParams.toString()}`, { scroll: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTokenA, selectedTokenB, router]);
 
   const calculateAmountB = async () => {
@@ -144,7 +141,6 @@ function TokenSwap() {
     return () => {
       clearTimeout(handler);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTokenA, selectedTokenB, amountA]);
 
   const handleSwap = async (e: React.FormEvent) => {
@@ -250,7 +246,7 @@ function TokenSwap() {
       <CardContent>
         <form onSubmit={handleSwap} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="sellToken" className="text-zinc-300">
+            <Label htmlFor="sellToken">
               You pay
             </Label>
             <div className="bg-zinc-800 border-zinc-700 rounded-md p-4">
@@ -272,7 +268,7 @@ function TokenSwap() {
                 <Button
                   type="button"
                   onClick={handleMaxClick}
-                  className="text-pink-500 bg-transparent hover:bg-transparent focus:bg-transparent shadow-none"
+                  className="text-pink-500 text-sm bg-transparent hover:bg-transparent focus:bg-transparent shadow-none"
                 >
                   Max
                 </Button>
@@ -291,7 +287,7 @@ function TokenSwap() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="buyToken" className="text-zinc-300">
+            <Label htmlFor="buyToken">
               You receive
             </Label>
             <div className="bg-zinc-800 border-zinc-700 rounded-md p-4">

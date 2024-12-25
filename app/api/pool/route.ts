@@ -21,12 +21,14 @@ export async function POST(req: Request) {
         },
       });
     } else {
-      await prisma.user.create({
-        data: {
-          address: address,
-          pools: [poolId],
-        },
-      });
+       if(!user){
+        await prisma.user.create({
+          data: {
+            address: address,
+            pools: [poolId],
+          },
+        });
+       }
     }
 
     return NextResponse.json(

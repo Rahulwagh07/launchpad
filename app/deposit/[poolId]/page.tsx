@@ -174,7 +174,7 @@ export default function DepositPage({
 
   return (
     <div className="container max-w-lg mx-auto p-4">
-      <Card className="bg-zinc-900 border-zinc-700 text-white rounded-xl p-6 space-y-6">
+      <Card className="bg-zinc-900 border-zinc-700 text-white rounded-xl p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-white">
             Add Deposit Amount
@@ -196,7 +196,7 @@ export default function DepositPage({
                   className="rounded-full"
                 />
               )}
-              <span className="text-lg font-medium text-white">
+              <span className="font-medium text-white">
                 {pool?.tokenA.symbol || "---"}
               </span>
             </div>
@@ -248,7 +248,7 @@ export default function DepositPage({
                   className="w-8 h-8 rounded-full"
                 />
               )}
-              <span className="text-lg font-medium text-white">
+              <span className="font-medium text-white">
                 {pool?.tokenB.symbol || "---"}
               </span>
             </div>
@@ -325,7 +325,7 @@ export default function DepositPage({
         <Button
           onClick={handleDeposit}
           disabled={!wallet.connected || !amountA || !amountB || isLoading}
-          className="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-6"
+          className="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-6 rounded-xl"
         >
           {getButtonText()}
         </Button>

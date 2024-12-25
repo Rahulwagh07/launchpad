@@ -6,6 +6,8 @@ import { PoolInfo } from "./pool-info";
 import type { PoolInfo as PoolInfoType } from "@/types/raydium";
 import SwapIcon from "./icons/swap";
 import { usePathname } from "next/navigation";
+import { calculateUsdtValue } from "@/lib/raydium/utils";
+import { DollarSign } from "lucide-react";
 
 interface PoolsTableProps {
   pools: PoolInfoType[];
@@ -43,13 +45,18 @@ export function PoolsTable({ pools }: PoolsTableProps) {
                 />
               </td>
               <td className="sm:px-4 py-3">
-                <div className="font-medium text-sm">
-                  {(
-                    Number(pool.poolInfo.lpAmount.toString()) /
-                    10 ** pool.poolInfo.lpDecimals
-                  ).toLocaleString(undefined, {
-                    maximumFractionDigits: 2,
-                  })}
+                <div className="font-medium text-sm flex items-center">
+                  <DollarSign size={16} className=""/>
+                  <span>
+                
+                  {Math.ceil(calculateUsdtValue(
+                    "C", 
+                    (
+                      Number(pool.poolInfo.lpAmount.toString()) / 
+                      10 ** pool.poolInfo.lpDecimals
+                    ).toString()
+                  ))}
+                  </span>
                 </div>
               </td>
               <td className="sm:px-4 py-3">
