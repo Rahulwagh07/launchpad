@@ -9,11 +9,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { TokenSelectModal } from "@/components/token-select-modal";
 import { TokenTypes } from "@/types/token";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, CircleAlert, Plus } from "lucide-react";
 import { createLiquidityPool } from "@/lib/raydium/liquidity-pool";
 import { fetchUserTokens } from "@/lib/raydium/helper";
-import toast from "react-hot-toast";
 import axios from "axios";
+import { customToast } from "@/components/common/custom-toast";
+import { BiWallet } from "react-icons/bi";
+import { TbCurrencySolana } from "react-icons/tb";
+import { GoCheckCircleFill } from "react-icons/go";
+import { BiSolidErrorCircle } from "react-icons/bi";
 
 export default function LiquidityPool() {
   const { connection } = useConnection();
@@ -50,15 +54,26 @@ export default function LiquidityPool() {
   const handleCreatePool = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!wallet.publicKey) {
-      toast.error("Please connect your wallet first.");
+       customToast({
+        message: "Connect your wallet!",
+        icon: <BiWallet size={24} className="text-sky-500" />
+      });
       return;
     }
     if (!selectedTokenA || !selectedTokenB || !amountA || !amountB) {
-      toast.error("Please select tokens and enter amounts");
+      customToast({
+        message: "Insufficient Inputs!",
+        description: "Select tokens and enter amounts",
+        icon: <CircleAlert size={24} className="text-red-500" />
+      });
       return;
     }
     if (!isBalanceSufficient()) {
-      toast.error("Insufficient balance");
+      customToast({
+        message: "Insufficient balance!",
+        description: "Add funds to your wallet to continue.",
+        icon: <TbCurrencySolana size={24} className="text-red-500" />
+      });
       return;
     }
 
@@ -74,30 +89,43 @@ export default function LiquidityPool() {
       });
 
       if (!result) {
-        toast.error("Transaction Failed");
+        customToast({
+          message: "Transaction Failed!",
+          icon: <CircleAlert size={24} className="text-red-500" />
+        });
         return;
       }
       const poolId = result.extInfo.address.poolId.toString();
       const response = await axios.get(`/api/check-pool?poolId=${poolId}`);
       console.log(response.data);
       if (response.data.isExist) {
-        toast.error(`${poolId} alreaddy exist`);
+        customToast({
+          message: `Pool already exists.`,
+          description: `poolId ${poolId}`,
+          icon: <CircleAlert size={24} className="text-red-500" />
+        });
         return;
       }
       await axios.post("/api/pool", {
         poolId: poolId,
         address: wallet.publicKey.toString(),
       });
-      toast.success(
-        `Liquidity pool created successfully! Transaction ID: ${result.txId}`
-      );
+      customToast({
+        message: `Transaction submitted.`,
+        description: `TxId ${result.txId}`,
+        icon: <GoCheckCircleFill size={24} className="text-red-500" />
+      });
       setAmountA("");
       setAmountB("");
       setSelectedTokenA(null);
       setSelectedTokenB(null);
     } catch (error) {
       console.error("Error creating liquidity pool:", error);
-      toast.error(`Error creating liquidity pool: ${error}`);
+     customToast({
+        message: "Transaction failed!",
+        description: "Failed to initilize liquidity pool.",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
     } finally {
       setLoading(false);
     }

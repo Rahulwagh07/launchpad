@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@/styles/globals.css"
 import "@/styles/wallet-button.css"
+import "@/styles/custom-toast.css"
 import AppWalletProvider from "../lib/provider";
 import Appbar from "@/components/appbar";
 import { Toaster } from "react-hot-toast";
@@ -36,15 +37,6 @@ export default function RootLayout({
 
         <Toaster
           position="top-right"
-          
-          toastOptions={{
-            style: {
-              borderRadius: '2px',
-              background: '#1f2937',
-              color: '#9ca3af',
-              padding: '12px',
-            },
-          }}
           />
           <Appbar/>
           {children}

@@ -5,7 +5,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { deposit } from "@/lib/raydium/deposit";
-import toast from "react-hot-toast";
 import { Wallet, Plus } from "lucide-react";
 import { fetchPoolInfoByIds } from "@/lib/raydium/helper";
 import { connection } from "@/lib/constant";
@@ -21,6 +20,10 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import axios from "axios";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { customToast } from "@/components/common/custom-toast";
+import { BiSolidCircle, BiSolidErrorCircle, BiWallet } from "react-icons/bi";
+import { CiDollar } from "react-icons/ci";
+import { GoCheckCircleFill } from "react-icons/go";
 
 export default function DepositPage({
   params,
@@ -52,7 +55,10 @@ export default function DepositPage({
       }
     } catch (error) {
       console.log("Error fetching pool Info", error);
-      toast.error("Failed to fetch pool information");
+      customToast({
+        message: "Failed to fetch pool information",
+        icon: <BiSolidCircle size={24} className="text-red-500" />
+      });
     }
   };
 
@@ -118,15 +124,24 @@ export default function DepositPage({
 
   const handleDeposit = async () => {
     if (!wallet.connected) {
-      toast.error("Please connect your wallet first");
+      customToast({
+        message: "Connect your wallet.",
+        icon: <BiWallet size={24} className="text-sky-500" />
+      });      
       return;
     }
     if (!amountA || !amountB) {
-      toast.error("Please enter token amounts");
+      customToast({
+        message: "Enter token amounts",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
       return;
     }
     if (!pool) {
-      toast.error("Pool information not available");
+      customToast({
+        message: "Pool information not available.",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
       return;
     }
     const tokenABalance = pool.tokenA.balance;
@@ -135,14 +150,21 @@ export default function DepositPage({
       parseFloat(amountA) > tokenABalance ||
       parseFloat(amountB) > tokenBBalance
     ) {
-      toast.error("Insufficient balance");
+      customToast({
+        message: "Insufficient balance!",
+        description: "Add funds to your wallet to continue.",
+        icon: <CiDollar size={24} className="text-red-500" />
+      });
       return;
     }
 
     setIsLoading(true);
     try {
       await deposit(wallet, poolId, parseFloat(amountA));
-      toast.success("Deposit successful!");
+       customToast({
+        message: "Deposit successful!",
+        icon: <GoCheckCircleFill size={24} className="text-green-500" />
+      });
       await axios.post("/api/pool", {
         poolId: poolId,
         address: wallet.publicKey?.toString(),
@@ -151,7 +173,11 @@ export default function DepositPage({
       setAmountB("");
       fetchPoolInfo();
     } catch (error) {
-      toast.error("Deposit failed!");
+      customToast({
+        message: "Transaction failed!",
+        description: "Failed to deposit.",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
       console.error("Deposit failed:", error);
     } finally {
       setIsLoading(false);

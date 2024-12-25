@@ -15,11 +15,13 @@ import {
   swapTokenAForTokenB,
 } from "@/lib/raydium/swap";
 import { PublicKey } from "@solana/web3.js";
-import toast from "react-hot-toast";
 import { TokenSelectModal } from "@/components/token-select-modal";
 import Image from "next/image";
 import { SOL_MINT } from "@/lib/constant";
 import SwapIcon from "@/components/icons/swap";
+import { customToast } from "@/components/common/custom-toast";
+import { BiSolidErrorCircle, BiWallet } from "react-icons/bi";
+import { GoCheckCircleFill } from "react-icons/go";
 
 function TokenSwap() {
   const router = useRouter();
@@ -146,19 +148,27 @@ function TokenSwap() {
   const handleSwap = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!wallet.connected) {
-      toast.error("Wallet not connected!");
+      customToast({
+        message: "Connect your wallet.",
+        icon: <BiWallet size={24} className="text-sky-500" />
+      });
       return;
     }
     if (!selectedTokenA || !selectedTokenB || !amountA || !amountB) {
-      toast.error(
-        "Incomplete Information: Please select tokens and enter an amount to swap."
-      );
+      customToast({
+        message: "Incomplete Information.",
+        description: "select tokens and enter amount to swap.",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
       return;
     }
     setLoading(true);
     try {
       if (!poolId) {
-        toast.error("Pool Id not found");
+        customToast({
+          message: "Pool not found",
+          icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+        });
         return;
       }
       const swapResult = await swapTokenAForTokenB(
@@ -168,15 +178,26 @@ function TokenSwap() {
         poolId
       );
       if (swapResult) {
-        toast.success("Swap Successful");
+        customToast({
+          message: "Swap successfull!",
+          icon: <GoCheckCircleFill size={24} className="text-green-500" />
+        });
         setAmountA("");
         setAmountB(0);
       } else {
-        toast.error("Swap failed");
+        customToast({
+          message: "Transaction failed!",
+          description: "Failed to swap tokens.",
+          icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+        });
       }
     } catch (error) {
       console.error("Error swapping tokens:", error);
-      toast.error("Failed to swap tokens");
+      customToast({
+        message: "Transaction failed!",
+        description: "Failed to swap tokens.",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
     } finally {
       setLoading(false);
     }

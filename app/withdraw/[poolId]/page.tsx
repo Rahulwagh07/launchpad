@@ -8,12 +8,15 @@ import { PoolInfo } from "@/types/raydium";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { use, useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { Wallet } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/common/copy-button";
+import { customToast } from "@/components/common/custom-toast";
+import { BiErrorCircle, BiSolidErrorCircle, BiWallet } from "react-icons/bi";
+import { CiDollar } from "react-icons/ci";
+import { GoCheckCircleFill } from "react-icons/go";
 
 export default function WithdrawPage({
   params,
@@ -41,7 +44,10 @@ export default function WithdrawPage({
       }
     } catch (error) {
       console.log("Error fetching pool info", error);
-      toast.error("Failed to fetch pool information");
+      customToast({
+        message: "Failed to fetch pool Info!",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
     }
   };
 
@@ -51,17 +57,28 @@ export default function WithdrawPage({
 
   const handleWithdrawLiquidity = async () => {
     if (!wallet.connected) {
-      toast.error("Please connect your wallet");
+       customToast({
+          message: "Connect your wallet.",
+          icon: <BiWallet size={24} className="text-sky-500" />
+        });
       return;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error("Please enter a valid amount");
+      customToast({
+        message: "Invalid Amount!",
+        description: "Enter valid amount.",
+        icon: <BiErrorCircle size={24} className="text-red-500" />
+      });
       return;
     }
 
     if (parseFloat(amount) > tokenBalance) {
-      toast.error("Insufficient LP token balance");
+       customToast({
+          message: "Insufficient balance!",
+          description: "Insufficient LP token balance.",
+          icon: <CiDollar size={24} className="text-red-500" />
+        });
       return;
     }
 
@@ -70,11 +87,18 @@ export default function WithdrawPage({
       const lpAmount =
         parseFloat(amount) * 10 ** (pool?.poolInfo.lpDecimals || 0);
       await withdraw(wallet, poolId, lpAmount);
-      toast.success("Withdraw successful");
+      customToast({
+        message: "Transaction successfull!",
+        icon: <GoCheckCircleFill size={24} className="text-green-500" />
+      });
       fetchPoolInfo();
     } catch (error) {
       console.log("Error in withdraw liquidity", error);
-      toast.error("Failed to withdraw liquidity");
+      customToast({
+        message: "Transaction failed!",
+        description: "Failed to withdraw liquidity",
+        icon: <BiSolidErrorCircle size={24} className="text-red-500" />
+      });
     } finally {
       setIsLoading(false);
     }
