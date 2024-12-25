@@ -19,8 +19,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "dex",
-  description: "Decentralized exchange",
+  title: "Launchpad",
+  description: "Decentralized cryptocurrency exchange",
 };
 
 export default function RootLayout({
